@@ -1,0 +1,51 @@
+import tensorflow as tf 
+from tensorflow import keras
+import numpy as np 
+import matplotlib.pyplot as plt 
+from keras.optimizers import Adam
+from keras.models import Model,Sequential
+from keras.layers import Dense, Dropout, Input,BatchNormalization
+
+def generator():
+    model = Sequential()
+    
+    model.add(tf.keras.layers.Dense(256,activation = 'relu',input_dim = 100))
+    model.add(tf.keras.layers.BatchNormalization())
+    model.add(tf.keras.layers.Dense(256,activation = 'relu'))
+    model.add(tf.keras.layers.BatchNormalization())
+    model.add(tf.keras.layers.Dense(256,activation = 'relu'))
+    model.add(tf.keras.layers.BatchNormalization())
+    model.add(tf.keras.layers.Dense(784,activation = 'sigmoid'))
+    
+    model.compile(loss='binary_crossentropy', optimizer=Adam(0.0002, 0.5))
+    return model
+
+gen = generator()
+gen.summary()
+
+def discriminator():
+    model = Sequential()
+    
+    model.add(Dropout(0.2, input_dim = 784))
+    model.add(Dense(256,activation = 'relu'))
+    model.add(BatchNormalization())
+    model.add(Dense(256,activation = 'relu'))
+    model.add(BatchNormalization())
+    model.add(Dense(1,activation = 'sigmoid'))
+    
+    model.compile(loss='binary_crossentropy', optimizer=Adam(0.0002, 0.5))
+    return model
+
+dis = discriminator()
+dis.summary()
+
+def GAN(generator, discriminator):
+    inputdata = Input(shape = (100,))
+    x = generator(inputdata)
+    outputdata = discriminator(x)
+    gan = Model(inputs = inputdata, outputs = outputdata)
+    gan.compile(loss='binary_crossentropy', optimizer=Adam(0.0002, 0.5))
+    return gan
+    
+gan = GAN(generator, discriminator)
+gan.summary()
